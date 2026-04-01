@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacOS Tools and Configs</title>
+<style>
+body {font-family: Arial, sans-serif;background-color: #0f172a;color: #e5e7eb;margin: 0;display: flex;}
+.sidebar {width: 260px;background: #020617;height: 100vh;padding: 15px;border-right: 1px solid #1e293b;position: sticky;top: 0;}
+.sidebar h2 {color: #38bdf8;font-size: 18px;}
+.tab {margin-bottom: 10px;}
+.tab button {width: 100%;background: #020617;color: #94a3b8;border: 1px solid #1e293b;padding: 10px;text-align: left;cursor: pointer;border-radius: 8px;font-weight: bold;}
+.tab button:hover {color: #38bdf8;}
+.tab-content {display: none;padding: 10px;font-size: 14px;color: #64748b;}
+.content {flex: 1;padding: 20px;max-width: 900px;margin: auto;}
+.card {background: #020617;padding: 20px;margin-bottom: 20px;border-radius: 12px;border: 1px solid #1e293b;}
+.card h2 {color: #38bdf8;margin-top: 0;}
+pre {background: #000;padding: 10px;border-radius: 6px;overflow-x: auto;}
+code {color: #22c55e;}
+.copy-btn {margin-top: 5px;background: #1e293b;color: #e5e7eb;border: none;padding: 6px 10px;border-radius: 6px;cursor: pointer;font-size: 12px;}
+.copy-btn:hover {background: #334155;}
+.warning-box {border: 2px solid #facc15;background: rgba(250, 204, 21, 0.1);padding: 15px;border-radius: 10px;margin-top: 15px;}
+.warning-box p {margin: 5px 0;color: #fde68a;font-weight: bold;}
+.progress-container {background: #1e293b;border-radius: 10px;overflow: hidden;margin-bottom: 20px;}
+.progress-bar {height: 15px;width: 0%;background: #38bdf8;transition: width 0.3s;}
+.continue-btn {margin-top: 15px;background: #38bdf8;color: #020617;border: none;padding: 10px 15px;border-radius: 8px;cursor: pointer;font-weight: bold;}
+.continue-btn:hover {background: #0ea5e9;}
+footer {text-align: center;padding: 20px;color: #64748b;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<h2>Setup Steps</h2>
+<div class="tab"><button onclick="toggleTab(this)">1 - Homebrew</button><div class="tab-content">Install Homebrew (required)</div></div>
+<div class="tab"><button onclick="toggleTab(this)">1.5 - Brew Setup</button><div class="tab-content">Configure Homebrew environment</div></div>
+<div class="tab"><button onclick="toggleTab(this)">2 - Wine</button><div class="tab-content">Install Wine (Staging)</div></div>
+<div class="tab"><button onclick="toggleTab(this)">3 - Wine Config</button><div class="tab-content">Post-install Wine setup</div></div>
+<div class="tab"><button onclick="toggleTab(this)">#4 - Post</button><div class="tab-content">Winetricks + final setup</div></div>
+</div>
+
+<div class="content">
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="card" id="step1">
+<h2>1. Install Homebrew</h2>
+<p>This installs the package manager required for everything else.</p>
+<pre><code id="cmd1">git clone https://github.com/Homebrew/brew homebrew</code></pre>
+<button class="copy-btn" onclick="copyCmd('cmd1')">Copy</button>
+<p><strong>Run twice.</strong></p>
+<button class="continue-btn" onclick="nextStep('step1','step1_5',20)">Continue →</button>
+</div>
+
+<div class="card" id="step1_5" style="display:none;">
+<h2>1.5 Homebrew Setup</h2>
+<p>Configure Homebrew so it works correctly in your terminal.</p>
+<pre><code id="cmd2">eval "$(homebrew/bin/brew shellenv)"
+brew update --force --quiet
+chmod -R go-w "$(brew --prefix)/share/zsh"</code></pre>
+<button class="copy-btn" onclick="copyCmd('cmd2')">Copy</button>
+<button class="continue-btn" onclick="nextStep('step1_5','step2',40)">Continue →</button>
+</div>
+
+<div class="card" id="step2" style="display:none;">
+<h2>2. Install Wine (Staging)</h2>
+<p>This installs Wine with extra patches and compatibility fixes.</p>
+<pre><code id="cmd3">brew install --cask --no-quarantine wine@staging</code></pre>
+<button class="copy-btn" onclick="copyCmd('cmd3')">Copy</button>
+<p><strong>Run twice.</strong></p>
+<button class="continue-btn" onclick="nextStep('step2','step3',60)">Continue →</button>
+</div>
+
+<div class="card" id="step3" style="display:none;">
+<h2>3. Wine Post-Install Setup</h2>
+<p>After installing Wine, initialize it:</p>
+<pre><code id="cmd4">winecfg</code></pre>
+<button class="copy-btn" onclick="copyCmd('cmd4')">Copy</button>
+<p>This creates the Wine environment and config folders.</p>
+<button class="continue-btn" onclick="nextStep('step3','step4',80)">Continue →</button>
+</div>
+
+<div class="card" id="step4" style="display:none;">
+<h2>#4 Post Installation (Optional but Recommended)</h2>
+<p>Install Winetricks to manage dependencies:</p>
+<pre><code id="cmd5">brew install winetricks</code></pre>
+<button class="copy-btn" onclick="copyCmd('cmd5')">Copy</button>
+<div class="warning-box">
+<p>⚠️ SOME WINDOWS APPS REQUIRE EXTRA LIBRARIES ⚠️</p>
+<p>⚠️ USE WINETRICKS TO INSTALL THEM ⚠️</p>
+</div>
+</div>
+
+<script>
+function toggleTab(button){const content=button.nextElementSibling;content.style.display=content.style.display==='block'?'none':'block';}
+function copyCmd(id){const text=document.getElementById(id).innerText;navigator.clipboard.writeText(text);alert('Copied!');}
+function nextStep(current,next,progress){
+  document.getElementById(current).style.display='none';
+  document.getElementById(next).style.display='block';
+  document.getElementById('progressBar').style.width=progress+'%';
+}
+</script>
+
+</body>
+</html>
